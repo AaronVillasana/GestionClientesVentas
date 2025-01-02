@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Clientes</h1>
+<form method="POST" action="{{ url_for('agregar_cliente') }}" class="row g-3">
+    <div class="col-md-6">
+        <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
+    </div>
+    <div class="col-md-6">
+        <input type="email" name="email" class="form-control" placeholder="Correo" required>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Agregar Cliente</button>
+    </div>
+</form>
+<table class="table mt-4">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cliente in clientes %}
+        <tr>
+            <td>{{ cliente['id'] }}</td>
+            <td>{{ cliente['nombre'] }}</td>
+            <td>{{ cliente['email'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

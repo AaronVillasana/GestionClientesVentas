@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Ventas</h1>
+<form method="POST" action="{{ url_for('registrar_venta') }}">
+    <select name="cliente_id" class="form-select mb-3">
+        {% for cliente in clientes %}
+        <option value="{{ cliente['id'] }}">{{ cliente['nombre'] }}</option>
+        {% endfor %}
+    </select>
+    <input type="number" name="monto" class="form-control mb-3" placeholder="Monto" required>
+    <button type="submit" class="btn btn-primary">Registrar Venta</button>
+</form>
+<table class="table mt-4">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Monto</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for venta in ventas %}
+        <tr>
+            <td>{{ venta['id'] }}</td>
+            <td>{{ venta['cliente'] }}</td>
+            <td>{{ venta['monto'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
