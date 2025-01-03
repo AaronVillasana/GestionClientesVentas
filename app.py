@@ -134,7 +134,7 @@ def exportar_clientes():
     df.to_excel(filename, index=False)
     return send_file(filename, as_attachment=True)
 
-# Inicialización de la base de datos
+# Inicialización de la base de datos y configuración del host y puerto
 if __name__ == '__main__':
     if not os.path.exists(DATABASE):
         conn = conectar_db()
@@ -143,5 +143,6 @@ if __name__ == '__main__':
         cur.execute("CREATE TABLE clientes (id INTEGER PRIMARY KEY, nombre TEXT, email TEXT)")
         cur.execute("CREATE TABLE ventas (id INTEGER PRIMARY KEY, cliente_id INTEGER, monto REAL, FOREIGN KEY(cliente_id) REFERENCES clientes(id))")
         conn.close()
-    print("Servidor Flask iniciando...")
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Usar el puerto proporcionado por Render
+    print(f"Servidor Flask iniciando en el puerto {port}...")
+    app.run(host="0.0.0.0", port=port, debug=True)
