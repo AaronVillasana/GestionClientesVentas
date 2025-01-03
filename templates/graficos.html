@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="text-center mb-4 text-primary">Gráficos de Ventas</h1>
+<div class="card shadow-sm p-3">
+    <canvas id="ventasChart" style="max-height: 400px;"></canvas>
+</div>
+<script>
+    const ctx = document.getElementById('ventasChart').getContext('2d');
+    const data = {{ data|tojson }};
+    const labels = data.map(item => item[0]);
+    const totals = data.map(item => item[1]);
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: totals,
+                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6c757d'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 14 } }
+                },
+                title: {
+                    display: true,
+                    text: 'Distribución de Ventas por Cliente',
+                    font: { size: 18, weight: 'bold' }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,23 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Clientes</h1>
-<form method="POST" action="{{ url_for('agregar_cliente') }}" class="row g-3">
-    <div class="col-md-6">
-        <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
-    </div>
-    <div class="col-md-6">
-        <input type="email" name="email" class="form-control" placeholder="Correo" required>
-    </div>
-    <div class="col-12">
-        <button type="submit" class="btn btn-primary">Agregar Cliente</button>
-    </div>
-</form>
-<table class="table mt-4">
-    <thead>
+<h1 class="text-center mb-4 text-primary">Gestión de Clientes</h1>
+<div class="card p-3 shadow-sm mb-4">
+    <form method="POST" class="row g-2">
+        <div class="col-md-5">
+            <input type="text" class="form-control" name="nombre" placeholder="Nombre del Cliente" required>
+        </div>
+        <div class="col-md-5">
+            <input type="email" class="form-control" name="email" placeholder="Correo Electrónico" required>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-success w-100">Agregar</button>
+        </div>
+    </form>
+</div>
+<table class="table table-striped shadow-sm">
+    <thead class="table-light">
         <tr>
             <th>ID</th>
             <th>Nombre</th>
-            <th>Correo</th>
+            <th>Email</th>
         </tr>
     </thead>
     <tbody>

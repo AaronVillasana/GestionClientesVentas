@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Ventas</h1>
-<form method="POST" action="{{ url_for('registrar_venta') }}">
-    <select name="cliente_id" class="form-select mb-3">
-        {% for cliente in clientes %}
-        <option value="{{ cliente['id'] }}">{{ cliente['nombre'] }}</option>
-        {% endfor %}
-    </select>
-    <input type="number" name="monto" class="form-control mb-3" placeholder="Monto" required>
-    <button type="submit" class="btn btn-primary">Registrar Venta</button>
+<form method="POST" action="{{ url_for('ventas') }}" class="mb-4">
+    <div class="row">
+        <div class="col-md-6">
+            <select name="cliente_id" class="form-select" required>
+                {% for cliente in clientes %}
+                <option value="{{ cliente['id'] }}">{{ cliente['nombre'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <input type="number" name="monto" class="form-control" placeholder="Monto" required>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Registrar</button>
+        </div>
+    </div>
 </form>
-<table class="table mt-4">
+<table class="table table-striped">
     <thead>
         <tr>
             <th>ID</th>
@@ -23,9 +31,12 @@
         <tr>
             <td>{{ venta['id'] }}</td>
             <td>{{ venta['cliente'] }}</td>
-            <td>{{ venta['monto'] }}</td>
+            <td>${{ venta['monto'] }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+<a href="{{ url_for('exportar_ventas') }}" class="btn btn-primary mt-3">
+    <i class="fas fa-download"></i> Exportar Ventas
+</a>
 {% endblock %}
