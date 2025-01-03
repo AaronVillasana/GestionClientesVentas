@@ -28,20 +28,32 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        
+        print(f"Intentando iniciar sesión con email: {email}")  # Depuración
+        
         conn = conectar_db()
         cur = conn.cursor()
         cur.execute("SELECT * FROM users WHERE email = ?", (email,))
         user = cur.fetchone()
         conn.close()
-        if user and check_password_hash(user['password'], password):
-            session['user_id'] = user['id']
-            flash("Inicio de sesión exitoso", "success")
-            return redirect(url_for('index'))
+        
+        if user:
+            print(f"Usuario encontrado: {user['email']}")  # Depuración
+            if check_password_hash(user['password'], password):
+                session['user_id'] = user['id']
+                print("Inicio de sesión exitoso, redirigiendo a index.")  # Depuración
+                flash("Inicio de sesión exitoso", "success")
+                return redirect(url_for('index'))
+            else:
+                print("Contraseña incorrecta.")  # Depuración
+        else:
+            print("Usuario no encontrado.")  # Depuración
+        
         flash("Credenciales incorrectas", "danger")
+    
+    print("Renderizando la página de inicio de sesión.")  # Depuración
     return render_template('login.html')
 
-# Registro de usuarios
-@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         name = request.form['name']
@@ -143,6 +155,6 @@ if __name__ == '__main__':
         cur.execute("CREATE TABLE clientes (id INTEGER PRIMARY KEY, nombre TEXT, email TEXT)")
         cur.execute("CREATE TABLE ventas (id INTEGER PRIMARY KEY, cliente_id INTEGER, monto REAL, FOREIGN KEY(cliente_id) REFERENCES clientes(id))")
         conn.close()
-    port = int(os.environ.get("PORT", 5000))  # Usar el puerto proporcionado por Render
+    port = int(os.environ.get("PORT", 5001))  # Usar el puerto proporcionado por Render
     print(f"Servidor Flask iniciando en el puerto {port}...")
     app.run(host="0.0.0.0", port=port, debug=True)
