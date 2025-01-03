@@ -54,6 +54,8 @@ def login():
     print("Renderizando la página de inicio de sesión.")  # Depuración
     return render_template('login.html')
 
+# Registro de usuarios
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         name = request.form['name']
@@ -96,22 +98,34 @@ def clientes():
 # Gestión de ventas
 @app.route('/ventas', methods=['GET', 'POST'])
 def ventas():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    conn = conectar_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM clientes")
-    clientes = cur.fetchall()
-    if request.method == 'POST':
-        cliente_id = request.form['cliente_id']
-        monto = request.form['monto']
-        cur.execute("INSERT INTO ventas (cliente_id, monto) VALUES (?, ?)", (cliente_id, monto))
-        conn.commit()
-        flash("Venta registrada exitosamente", "success")
-    cur.execute("SELECT ventas.id, clientes.nombre AS cliente, ventas.monto FROM ventas JOIN clientes ON ventas.cliente_id = clientes.id")
-    ventas = cur.fetchall()
-    conn.close()
-    return render_template('ventas.html', ventas=ventas, clientes=clientes)
+    try:
+        if 'user_id' not in session:
+            return redirect(url_for('login'))
+        
+        conn = conectar_db()
+        cur = conn.cursor()
+        
+        cur.execute("SELECT * FROM clientes")
+        clientes = cur.fetchall()
+        
+        if request.method == 'POST':
+            cliente_id = request.form['cliente_id']
+            monto = request.form['monto']
+            cur.execute("INSERT INTO ventas (cliente_id, monto) VALUES (?, ?)", (cliente_id, monto))
+            conn.commit()
+            flash("Venta registrada exitosamente", "success")
+        
+        cur.execute("""
+            SELECT ventas.id, clientes.nombre AS cliente, ventas.monto
+            FROM ventas
+            JOIN clientes ON ventas.cliente_id = clientes.id
+        """)
+        ventas = cur.fetchall()
+        conn.close()
+        return render_template('ventas.html', ventas=ventas, clientes=clientes)
+    except Exception as e:
+        print(f"Error en la función 'ventas': {e}")
+        return "Error en el servidor. Revisa la consola para más detalles.", 500
 
 # Reportes
 @app.route('/reporte')
@@ -146,6 +160,23 @@ def exportar_clientes():
     df.to_excel(filename, index=False)
     return send_file(filename, as_attachment=True)
 
+# Exportar ventas a Excel
+@app.route('/exportar_ventas')
+def exportar_ventas():
+    conn = conectar_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT ventas.id, clientes.nombre AS cliente, ventas.monto
+        FROM ventas
+        JOIN clientes ON ventas.cliente_id = clientes.id
+    """)
+    data = cur.fetchall()
+    conn.close()
+    df = pd.DataFrame(data, columns=['ID', 'Cliente', 'Monto'])
+    filename = 'ventas.xlsx'
+    df.to_excel(filename, index=False)
+    return send_file(filename, as_attachment=True)
+
 # Inicialización de la base de datos y configuración del host y puerto
 if __name__ == '__main__':
     if not os.path.exists(DATABASE):
@@ -155,6 +186,6 @@ if __name__ == '__main__':
         cur.execute("CREATE TABLE clientes (id INTEGER PRIMARY KEY, nombre TEXT, email TEXT)")
         cur.execute("CREATE TABLE ventas (id INTEGER PRIMARY KEY, cliente_id INTEGER, monto REAL, FOREIGN KEY(cliente_id) REFERENCES clientes(id))")
         conn.close()
-    port = int(os.environ.get("PORT", 5001))  # Usar el puerto proporcionado por Render
+    port = int(os.environ.get("PORT", 5001))  # Usar el puerto proporcionado
     print(f"Servidor Flask iniciando en el puerto {port}...")
     app.run(host="0.0.0.0", port=port, debug=True)
